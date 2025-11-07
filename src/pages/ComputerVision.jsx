@@ -45,6 +45,10 @@ const ComputerVision = () => {
   const streamRef = useRef(null)
   const animationFrameRef = useRef(null)
   const emotionIntervalRef = useRef(null)
+  const lastSpeakTimeRef = useRef(0)
+  const lastDetectedObjectRef = useRef('')
+  const quizObjectFoundRef = useRef(false)
+  const detectionCountRef = useRef(0)
   const { progress, updateProgress, recordActivity } = useProgress()
   const { settings, speak } = useSettings()
 
@@ -116,10 +120,19 @@ const ComputerVision = () => {
     setIsCameraActive(false)
     setDetectedObjects([])
     setDetectedEmotion(null)
+    // Reset tracking refs
+    lastSpeakTimeRef.current = 0
+    lastDetectedObjectRef.current = ''
+    quizObjectFoundRef.current = false
+    detectionCountRef.current = 0
   }
 
   const startObjectDetection = async () => {
     if (!videoRef.current || !canvasRef.current) return
+
+    // Reset detection tracking
+    quizObjectFoundRef.current = false
+    detectionCountRef.current = 0
 
     // Use TensorFlow.js COCO-SSD for object detection
     const detect = async () => {
@@ -139,22 +152,48 @@ const ComputerVision = () => {
         }
 
         // Check if target object is found in quiz mode
-        if (gameMode === 'quiz' && targetObject) {
-          const found = detections.some(det => 
-            det.class.toLowerCase().includes(targetObject.toLowerCase())
-          )
+        if (gameMode === 'quiz' && targetObject && !quizObjectFoundRef.current) {
+          const found = detections.find(det => {
+            const matchesName = det.class.toLowerCase().includes(targetObject.toLowerCase()) ||
+                                targetObject.toLowerCase().includes(det.class.toLowerCase())
+            return matchesName && det.score >= 0.5 // Accept 50% confidence or higher
+          })
           if (found) {
-            handleCorrectGuess()
+            quizObjectFoundRef.current = true // Prevent multiple triggers
+            speak(`Good job! ${found.class} detected!`)
+            setTimeout(() => {
+              handleCorrectGuess()
+            }, 500) // Small delay to prevent race conditions
           }
         }
 
-        // Speak detected objects in learning mode
+        // Speak detected objects in learning mode (throttled)
         if (gameMode === 'learning' && detections.length > 0 && settings.textToSpeech) {
-          const learningObjects = detections.filter(det => isLearningObject(det.class))
+          const learningObjects = detections.filter(det => 
+            isLearningObject(det.class) && det.score >= 0.5 // Accept 50% confidence
+          )
           if (learningObjects.length > 0) {
             const obj = learningObjects[0]
-            if (obj.score > 0.7) {
-              speak(`I see a ${obj.class}`)
+            const now = Date.now()
+            const timeSinceLastSpeak = now - lastSpeakTimeRef.current
+            const isDifferentObject = lastDetectedObjectRef.current !== obj.class
+            
+            // Speak if: 5 seconds passed OR different object detected
+            if (timeSinceLastSpeak > 5000 || (isDifferentObject && timeSinceLastSpeak > 2000)) {
+              speak(`Good job! I see a ${obj.class}!`)
+              lastSpeakTimeRef.current = now
+              lastDetectedObjectRef.current = obj.class
+              detectionCountRef.current = 0
+            } else if (isDifferentObject) {
+              // Track detections of different object
+              detectionCountRef.current++
+              if (detectionCountRef.current >= 3 && timeSinceLastSpeak > 1000) {
+                // If same new object detected 3 times in a row, speak it
+                speak(`Good job! I see a ${obj.class}!`)
+                lastSpeakTimeRef.current = now
+                lastDetectedObjectRef.current = obj.class
+                detectionCountRef.current = 0
+              }
             }
           }
         }
@@ -200,7 +239,6 @@ const ComputerVision = () => {
   const handleCorrectGuess = () => {
     setScore(score + 10)
     setRound(round + 1)
-    speak('Correct! Great job!')
     
     updateProgress('computerVision', 'objectRecognition', {
       completed: progress.computerVision.objectRecognition.completed + 1,
@@ -213,7 +251,8 @@ const ComputerVision = () => {
     setTimeout(() => {
       const newTarget = LEARNING_OBJECTS[Math.floor(Math.random() * LEARNING_OBJECTS.length)]
       setTargetObject(newTarget)
-      speak(`Now find a ${newTarget}`)
+      quizObjectFoundRef.current = false // Reset for next object
+      speak(`Excellent! Now find a ${newTarget}`)
     }, 2000)
   }
 
@@ -225,6 +264,11 @@ const ComputerVision = () => {
       setActiveModule(moduleKey)
       setScore(0)
       setRound(1)
+      // Reset tracking refs when switching modules
+      lastSpeakTimeRef.current = 0
+      lastDetectedObjectRef.current = ''
+      quizObjectFoundRef.current = false
+      detectionCountRef.current = 0
       if (isCameraActive) {
         stopCamera()
       }

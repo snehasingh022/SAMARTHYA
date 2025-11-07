@@ -2,10 +2,20 @@ import * as tf from '@tensorflow/tfjs'
 import * as cocoSsd from '@tensorflow-models/coco-ssd'
 import '@tensorflow/tfjs-backend-webgl'
 
+/**
+ * MODEL: COCO-SSD (Common Objects in Context - Single Shot Detector)
+ * - Pre-trained on COCO dataset with 90 object classes
+ * - Can detect everyday objects like people, animals, furniture, food, etc.
+ * - Returns: object class, confidence score (0-1), bounding box coordinates
+ * - Speed: ~30-60ms per frame on modern devices
+ * - Accuracy: 50-95% depending on object clarity and lighting
+ */
+
 let objectDetectionModel = null
 let isModelLoading = false
 
-// Load object detection model
+// Load COCO-SSD object detection model
+// Model size: ~5MB, loads in 2-5 seconds
 export const loadObjectDetectionModel = async () => {
   if (objectDetectionModel) return objectDetectionModel
   if (isModelLoading) {
@@ -18,8 +28,12 @@ export const loadObjectDetectionModel = async () => {
 
   try {
     isModelLoading = true
-    objectDetectionModel = await cocoSsd.load()
+    // Load lite_mobilenet_v2 model for faster performance
+    objectDetectionModel = await cocoSsd.load({
+      base: 'lite_mobilenet_v2' // Faster, slightly less accurate than mobilenet_v2
+    })
     isModelLoading = false
+    console.log('COCO-SSD model loaded successfully')
     return objectDetectionModel
   } catch (error) {
     console.error('Error loading object detection model:', error)
