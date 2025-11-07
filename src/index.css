@@ -1,0 +1,201 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* Autism-friendly color palette - soft, calming colors */
+  --primary-blue: #6B9BD2;
+  --primary-green: #7FB3A8;
+  --primary-purple: #9B8FB8;
+  --primary-pink: #D4A5C7;
+  --primary-yellow: #F5D76E;
+  --primary-orange: #F7A072;
+  
+  --bg-light: #F8F9FA;
+  --bg-soft: #FFF8F0;
+  --text-primary: #2C3E50;
+  --text-secondary: #5A6C7D;
+  --border-soft: #E0E7EF;
+  --success: #5CB85C;
+  --warning: #F0AD4E;
+  --error: #D9534F;
+  
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 3rem;
+  
+  --border-radius: 16px;
+  --button-height: 60px;
+  --icon-size: 48px;
+  
+  /* Transitions */
+  --transition-smooth: all 0.3s ease;
+  --transition-slow: all 0.5s ease;
+}
+
+/* Low-light mode */
+[data-theme="low-light"] {
+  --bg-light: #1A1A1A;
+  --bg-soft: #2D2D2D;
+  --text-primary: #E8E8E8;
+  --text-secondary: #B0B0B0;
+  --border-soft: #404040;
+}
+
+/* Reduced animation mode */
+[data-reduce-motion="true"] * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+body {
+  font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--bg-soft);
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+button:focus-visible {
+  outline: 3px solid var(--primary-blue);
+  outline-offset: 2px;
+}
+
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--primary-blue);
+  outline-offset: 2px;
+}
+
+/* Accessibility - Skip to main content */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--primary-blue);
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  z-index: 1000;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Large, clear buttons for easier interaction */
+.btn-large {
+  min-height: var(--button-height);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: 1.25rem;
+  font-weight: 600;
+  border-radius: var(--border-radius);
+  transition: var(--transition-smooth);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
+
+.btn-large:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-large:active {
+  transform: translateY(0);
+}
+
+/* Card styles */
+.card {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid var(--border-soft);
+}
+
+[data-theme="low-light"] .card {
+  background: var(--bg-soft);
+  border-color: var(--border-soft);
+}
+
+/* Container */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--spacing-md);
+}
+
+/* Utility classes */
+.text-center {
+  text-align: center;
+}
+
+.mt-1 { margin-top: var(--spacing-sm); }
+.mt-2 { margin-top: var(--spacing-md); }
+.mt-3 { margin-top: var(--spacing-lg); }
+
+.mb-1 { margin-bottom: var(--spacing-sm); }
+.mb-2 { margin-bottom: var(--spacing-md); }
+.mb-3 { margin-bottom: var(--spacing-lg); }
+
+.flex {
+  display: flex;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.gap-1 { gap: var(--spacing-sm); }
+.gap-2 { gap: var(--spacing-md); }
+.gap-3 { gap: var(--spacing-lg); }
+
+/* Loading spinner */
+.spinner {
+  border: 4px solid var(--border-soft);
+  border-top: 4px solid var(--primary-blue);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
