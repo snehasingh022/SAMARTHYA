@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Autism-Friendly Learning Platform
 
 A comprehensive, accessible, and visually engaging website for autistic children focused on fun-based learning.
@@ -81,3 +82,6 @@ See [GEMINI_SETUP.md](./GEMINI_SETUP.md) for setup instructions.
 
 **Note:** The application works fully without the Gemini API key - all features have fallback modes. Gemini enhances the experience but is not required.
 
+=======
+# SAMARTHYA
+>>>>>>> b5668a79489fbed33f1f9fca323d20d4225b98ef
